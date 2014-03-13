@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpXFileParser", "SharpXFileParser\SharpXFileParser.csproj", "{49EC3FCF-7358-4248-9B07-CC0473BF10AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample", "Sample\Sample.csproj", "{E78DB452-5C85-480C-98C8-7F97598FF9EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49EC3FCF-7358-4248-9B07-CC0473BF10AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49EC3FCF-7358-4248-9B07-CC0473BF10AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49EC3FCF-7358-4248-9B07-CC0473BF10AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49EC3FCF-7358-4248-9B07-CC0473BF10AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E78DB452-5C85-480C-98C8-7F97598FF9EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E78DB452-5C85-480C-98C8-7F97598FF9EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E78DB452-5C85-480C-98C8-7F97598FF9EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E78DB452-5C85-480C-98C8-7F97598FF9EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
