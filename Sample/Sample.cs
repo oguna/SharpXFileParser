@@ -163,7 +163,7 @@ namespace Sample
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("Textuer fiel erro. - " + mesh.Materials[i].Textures[0].Name);
+                        Console.WriteLine("Textuer file erro. - " + mesh.Materials[i].Textures[0].Name);
                         continue;
                     }
                 }

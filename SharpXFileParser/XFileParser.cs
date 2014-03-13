@@ -1057,9 +1057,11 @@ namespace SharpXFileParser
             if (buffer[p] != '"')
                 ThrowException("Expected quotation mark.");
             ++p;
+            int startPos = p;
 
             while (p < end && buffer[p] != '"')
-                poString += (char)buffer[p++];
+                p++;
+            poString = Encoding.Default.GetString(buffer, startPos, p - startPos);
 
             if (p >= end - 1)
                 ThrowException("Unexpected end of file while parsing string");
