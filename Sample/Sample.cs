@@ -82,7 +82,7 @@ namespace Sample
                     for (int j = 0; j < 3; j++)
                     {
                         Vector3 pos = mesh.Positions[(int)mesh.PosFaces[i].Indices[j]];
-                        Vector3 noral = mesh.Positions[(int)mesh.NormalFaces[i].Indices[j]];
+                        Vector3 noral = mesh.Normals[(int)mesh.NormalFaces[i].Indices[j]];
                         Vector2 tex = mesh.NumTextures > 0 ? mesh.TexCoords[0][(int)mesh.PosFaces[i].Indices[j]] : Vector2.Zero;
                         verts.Add(new VertexPositionNormalTexture(pos, noral, tex));
                     }
@@ -95,7 +95,7 @@ namespace Sample
                     foreach (int j in indexLine)
                     {
                         Vector3 pos = mesh.Positions[(int)mesh.PosFaces[i].Indices[j]];
-                        Vector3 noral = mesh.Positions[(int)mesh.NormalFaces[i].Indices[j]];
+                        Vector3 noral = mesh.Normals[(int)mesh.NormalFaces[i].Indices[j]];
                         Vector2 tex = mesh.NumTextures > 0 ? mesh.TexCoords[0][(int)mesh.PosFaces[i].Indices[j]] : Vector2.Zero;
                         verts.Add(new VertexPositionNormalTexture(pos, noral, tex));
                     }
