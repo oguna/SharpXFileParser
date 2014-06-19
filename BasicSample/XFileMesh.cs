@@ -18,7 +18,7 @@ using System.IO;
 
 namespace BasicSample
 {
-    class XFileMesh
+    class XFileMesh : IDisposable
     {
         [StructLayout(LayoutKind.Sequential)]
         struct VertexPositionNormalTexture
@@ -287,6 +287,18 @@ namespace BasicSample
                 context.DrawIndexed(indexCounts[i] * 3, startindex, 0);
                 startindex += indexCounts[i] * 3;
             }
+        }
+
+        public void Dispose()
+        {
+            Utilities.Dispose(ref vertexShader);
+            Utilities.Dispose(ref pixelShader);
+            Utilities.Dispose(ref texPixelShader);
+            Utilities.Dispose(ref sampler);
+            Utilities.Dispose(ref layout);
+            Utilities.Dispose(ref vertexBuffer);
+            Utilities.Dispose(ref indexBuffer);
+            Utilities.Dispose(ref contantBuffer);
         }
     }
 }

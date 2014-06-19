@@ -178,6 +178,7 @@ namespace BasicSample
             });
 
             // Release all resources
+            mesh.Dispose();
             depthBuffer.Dispose();
             depthView.Dispose();
             renderView.Dispose();
