@@ -77,6 +77,8 @@
     <Compile Include="GlobeCamera.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TargeImage.cs" />
+    <Compile Include="TargeLoader.cs" />
     <Compile Include="XFileMesh.cs" />
   </ItemGroup>
   <ItemGroup>

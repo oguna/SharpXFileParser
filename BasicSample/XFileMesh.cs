@@ -193,14 +193,22 @@ namespace BasicSample
                     if (!String.IsNullOrWhiteSpace (mesh.Materials[i].Textures[0].Name))
                     {
                         string comPath = Path.Combine(dirpath, mesh.Materials[i].Textures[0].Name);
-                        try
+                        if (File.Exists(comPath))
                         {
-                            Texture2D tex = Texture2D.FromFile<Texture2D>(device, comPath);
-                            submesh.Texture = tex;
-                            submesh.TextureView = new ShaderResourceView(device, tex);
-                        }
-                        catch(Exception e)
-                        {
+                            try
+                            {
+                                Texture2D tex = Texture2D.FromFile<Texture2D>(device, comPath);
+                                submesh.Texture = tex;
+                                submesh.TextureView = new ShaderResourceView(device, tex);
+                            }
+                            catch (Exception e)
+                            {
+                                if (Path.GetExtension(comPath).ToUpper() == ".TGA")
+                                {
+                                    submesh.Texture = TargeLoader.LoadFromFile(device, comPath);
+                                    submesh.TextureView = new ShaderResourceView(device, submesh.Texture);
+                                }
+                            }
                         }
                     }
                 }
