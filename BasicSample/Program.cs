@@ -41,7 +41,7 @@ namespace BasicSample
         //      [STAThread]
         private static void Main()
         {
-            var form = new RenderForm("SharpDX - MiniCube Direct3D11 Sample");
+            var form = new RenderForm("Sharp XFile Parser Sample");
 
             // SwapChain description
             var desc = new SwapChainDescription()
