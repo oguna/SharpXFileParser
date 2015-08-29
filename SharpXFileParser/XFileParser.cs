@@ -126,7 +126,7 @@ namespace SharpXFileParser
                 // parse specific object
                 if (objectName == "template")
                 {
-                    ParsedataObjectTemplate();
+                    ParseDataObjectTemplate();
                 }
                 else if (objectName == "Frame")
                 {
@@ -168,7 +168,7 @@ namespace SharpXFileParser
             }
         }
 
-        protected void ParsedataObjectTemplate()
+        protected void ParseDataObjectTemplate()
         {
             // parse a template data object. Currently not stored.
             string name;
@@ -208,6 +208,7 @@ namespace SharpXFileParser
                     {
                         Node exroot = scene.RootNode;
                         scene.RootNode = new Node(null);
+                        scene.RootNode.Name = "$dummy_root";
                         scene.RootNode.Children.Add(exroot);
                         exroot.Parent = scene.RootNode;
                     }
@@ -216,6 +217,7 @@ namespace SharpXFileParser
                 }
                 else
                 {
+                    // it's the first node imported. place it as root
                     scene.RootNode = node;
                 }
             }
@@ -375,6 +377,9 @@ namespace SharpXFileParser
             bone.OffsetMatrix.M33 = ReadFloat(); bone.OffsetMatrix.M43 = ReadFloat();
             bone.OffsetMatrix.M14 = ReadFloat(); bone.OffsetMatrix.M24 = ReadFloat();
             bone.OffsetMatrix.M33 = ReadFloat(); bone.OffsetMatrix.M44 = ReadFloat();
+
+            CheckForSemicolon();
+            CheckForClosingBrace();
 
         }
 
@@ -949,7 +954,7 @@ namespace SharpXFileParser
                 if (p >= end)
                     return s;
 
-                while ((p < end) && (buffer[p] != ' '))
+                while ((p < end) && !char.IsSeparator((char)buffer[p]))
                 {
                     // either keep token delimiters when already holding a token, or return if first valid char
                     if (buffer[p] == ';' || buffer[p] == '}' || buffer[p] == '{' || buffer[p] == ',')

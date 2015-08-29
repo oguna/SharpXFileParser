@@ -45,11 +45,15 @@ namespace SharpXFileParser
         public uint Vertex;
         public float Weight;
     }
-    public struct Bone
+    public class Bone
     {
         public string Name;
         public List<BoneWeight> Weights;
         public Matrix4x4 OffsetMatrix;
+        public Bone()
+        {
+            Weights = new List<BoneWeight>();
+        }
     }
 
     public class Mesh
@@ -96,19 +100,19 @@ namespace SharpXFileParser
         }
     }
 
-    public struct AnimBone
+    public class AnimBone
     {
         public string BoneName;
-        public List<VectorKey> PosKeys;
-        public List<QuatKey> RotKeys;
-        public List<VectorKey> ScaleKeys;
-        public List<MatrixKey> TrafoKeys;
+        public List<VectorKey> PosKeys = new List<VectorKey>();
+        public List<QuatKey> RotKeys = new List<QuatKey>();
+        public List<VectorKey> ScaleKeys = new List<VectorKey>();
+        public List<MatrixKey> TrafoKeys = new List<MatrixKey>();
     }
 
-    public struct Animation
+    public class Animation
     {
         public string Name;
-        public List<AnimBone> Anims;
+        public List<AnimBone> Anims = new List<AnimBone>();
     }
 
     public class Scene
@@ -116,7 +120,7 @@ namespace SharpXFileParser
         public Node RootNode;
         public List<Mesh> GlobalMeshes = new List<Mesh>();
         public List<Material> GlobalMaterial = new List<Material>();
-        public List<Animation> Anims;
+        public List<Animation> Anims = new List<Animation>();
         public uint AnimTicksPerSecond;
     }
 }
