@@ -1,5 +1,7 @@
 # SharpXFileParser
 
+![Screenshot](screenshot.png)
+
 SharpXFileParser is DirectX X File (.x) parser written in C#.
 
 Now, this project don't not support Animation or non-ascii characters.
@@ -7,7 +9,6 @@ Now, this project don't not support Animation or non-ascii characters.
 This project uses `ゲキド街`(GekidoGai;Gekido-city) as sample file, thanks ポンポコP(Ponpoko-P).
 
 I use Assimp soruce code for this parser, so this project is 3-Clause BSD license.
-
 
 ## License
 SharpXFileParse released as Open Source under the terms of a 3-clause BSD license.
