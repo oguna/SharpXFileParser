@@ -21,6 +21,8 @@ namespace SharpXFileParser
     {
         public const uint AI_MAX_NUMBER_OF_TEXTURECOORDS = 4;
         public const uint AI_MAX_NUMBER_OF_COLOR_SETS = 4;
+        const uint MSZIP_MAGIC = 0x4B43;
+        const uint MSZIP_BLOCK = 32786;
 
         public XFileParser(byte[] buffer)
         {
@@ -33,7 +35,7 @@ namespace SharpXFileParser
             scene = null;
 
             // vector to store uncompressed file for INFLATE'd X files
-            string uncompressed;
+            byte[] uncompressed;
 
             // set up memory pointers
             p = 0;
@@ -84,7 +86,50 @@ namespace SharpXFileParser
             // If this is a compressed X file, apply the inflate algorithm to it
             if (compressed)
             {
-                throw (new Exception("Assimp was built without compressed X support"));
+                MemoryStream stream = new MemoryStream(buffer);
+                stream.Position += 16;
+                stream.Position += 6;
+                long p = stream.Position;
+                long p1 = stream.Position;
+                uint estOut = 0;
+                while (p1 + 3 < end)
+                {
+                    ushort ofs = BitConverter.ToUInt16(buffer, (int)p1);
+                    p1 += 2;
+                    if (ofs >= MSZIP_BLOCK)
+                    {
+                        throw (new Exception("X: Invalid offset to next MSZIP compressed block"));
+                    }
+                    ushort magic = BitConverter.ToUInt16(buffer, (int)p1);
+                    p1 += 2;
+                    if (magic != MSZIP_MAGIC)
+                    {
+                        throw (new Exception("X: Unsupported compressed format, expected MSZIP header"));
+                    }
+                    p1 += ofs;
+                    estOut += MSZIP_BLOCK;
+                }
+
+                uncompressed = new byte[estOut + 1];
+                int uncompressedEnd = 0;
+                while( p + 3 < end)
+                {
+                    ushort ofs = BitConverter.ToUInt16(buffer, (int)p);
+                    p += 4;
+                    if (p + ofs > end + 2)
+                    {
+                        throw (new Exception("X: Unexpected EOF in compressed chunk"));
+                    }
+                    stream.Position = p;
+                    DeflateStream uncomp = new DeflateStream(stream, CompressionMode.Decompress);
+                    int readLnegth = uncomp.Read(uncompressed, 0, (int)MSZIP_BLOCK);
+                    uncompressedEnd += readLnegth;
+                    p += ofs;
+                }
+                this.buffer = uncompressed;
+                this.end = uncompressedEnd;
+                this.p = 0;
+                //throw (new Exception("Assimp was built without compressed X support"));
             }
             else
             {

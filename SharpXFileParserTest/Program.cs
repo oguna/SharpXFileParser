@@ -51,7 +51,7 @@ namespace SharpXFileParserTest
         public static void Main()
         {
             ExecutionTest test = new ExecutionTest();
-            test.TryParse("../../../X/anim_test.x");
+            test.TryParse("../../../X/test_cube_compressed.x");
         }
     }
 }
