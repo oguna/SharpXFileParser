@@ -24,6 +24,10 @@ namespace SharpXFileParser
         const uint MSZIP_MAGIC = 0x4B43;
         const uint MSZIP_BLOCK = 32786;
 
+        /// <summary>
+        /// Constructor. Creates a data structure out of the XFile given in the memory block.
+        /// </summary>
+        /// <param name="buffer"></param>
         public XFileParser(byte[] buffer)
         {
             this.buffer = buffer;
@@ -81,11 +85,15 @@ namespace SharpXFileParser
             if (binaryFloatSize != 32 && binaryFloatSize != 64)
                 ThrowException(string.Format("Unknown float size {0} specified in xfile header.", binaryFloatSize));
 
+            // The x format specifies size in bits, but we work in bytes
+            binaryFloatSize /= 8;
+
             p += 16;
 
             // If this is a compressed X file, apply the inflate algorithm to it
             if (compressed)
             {
+                //throw (new Exception("Assimp was built without compressed X support"));
                 MemoryStream stream = new MemoryStream(buffer);
                 stream.Position += 16;
                 stream.Position += 6;
@@ -129,7 +137,6 @@ namespace SharpXFileParser
                 this.buffer = uncompressed;
                 this.end = uncompressedEnd;
                 this.p = 0;
-                //throw (new Exception("Assimp was built without compressed X support"));
             }
             else
             {
@@ -239,6 +246,7 @@ namespace SharpXFileParser
             string name;
             ReadHeadOfDataObject(out name);
 
+            // create a named node and place it at its parent, if given
             Node node = new Node(parent);
             node.Name = name;
             if (parent != null)
@@ -247,16 +255,19 @@ namespace SharpXFileParser
             }
             else
             {
+                // there might be multiple root nodes
                 if (scene.RootNode != null)
                 {
                     if (scene.RootNode.Name != "$dummy_root")
                     {
+                        // place a dummy root if not there
                         Node exroot = scene.RootNode;
                         scene.RootNode = new Node(null);
                         scene.RootNode.Name = "$dummy_root";
                         scene.RootNode.Children.Add(exroot);
                         exroot.Parent = scene.RootNode;
                     }
+                    // put the new node as its child instead
                     scene.RootNode.Children.Add(node);
                     node.Parent = scene.RootNode;
                 }
@@ -267,6 +278,8 @@ namespace SharpXFileParser
                 }
             }
 
+            // Now inside a frame.
+            // read tokens until closing brace is reached.
             bool running = true;
             while (running)
             {
@@ -277,25 +290,28 @@ namespace SharpXFileParser
                 }
 
                 if (objectName == "}")
+                {
                     break; // frame finished
+                }
+                else if (objectName == "Frame")
+                {
+                    ParseDataObjectFrame(node); // child frame
+                }
+                else if (objectName == "FrameTransformMatrix")
+                {
+                    ParseDataObjectTransformationMatrix(out node.TrafoMatrix);
+                }
+                else if (objectName == "Mesh")
+                {
+                    Mesh mesh;
+                    ParseDataObjectMesh(out mesh);
+                    node.Meshes.Add(mesh);
+                }
                 else
-                    if (objectName == "Frame")
-                        ParseDataObjectFrame(node); // child frame
-                    else
-                        if (objectName == "FrameTransformMatrix")
-                            ParseDataObjectTransformationMatrix(out node.TrafoMatrix);
-                        else
-                            if (objectName == "Mesh")
-                            {
-                                Mesh mesh;
-                                ParseDataObjectMesh(out mesh);
-                                node.Meshes.Add(mesh);
-                            }
-                            else
-                            {
-                                Debug.WriteLine("Unknown data object in frame in x file");
-                                ParseUnknownDataObject();
-                            }
+                {
+                    Debug.WriteLine("Unknown data object in frame in x file");
+                    ParseUnknownDataObject();
+                }
             }
         }
 
@@ -349,7 +365,7 @@ namespace SharpXFileParser
                 for (uint b = 0; b < numIndices; b++)
                     face.Indices.Add(ReadInt());
                 mesh.PosFaces.Add(face);
-                CheckForSeparator();
+                TestForSeparator();
             }
 
             // here, other data objects may follow
@@ -387,8 +403,9 @@ namespace SharpXFileParser
         protected void ParseDataObjectSkinWeights(ref Mesh mesh)
         {
             ReadHeadOfDataObject();
-            string transformNodeName = "";
-            GetNextTokenAsString(ref transformNodeName);
+
+            string transformNodeName;
+            GetNextTokenAsString(out transformNodeName);
 
             Bone bone = new Bone();
             mesh.Bones.Add(bone);
@@ -463,7 +480,7 @@ namespace SharpXFileParser
                     face.Indices.Add(ReadInt());
                 mesh.NormalFaces.Add(face);
 
-                CheckForSeparator();
+                TestForSeparator();
             }
 
             CheckForClosingBrace();
@@ -565,38 +582,34 @@ namespace SharpXFileParser
                 string objectName = GetNextToken();
                 if (objectName.Length == 0)
                     ThrowException("Unexpected end of file while parsing mesh material list.");
-                else
-                    if (objectName == "}")
-                        break; // material list finished
-                    else
-                        if (objectName == "{")
-                        {
-                            // template materials 
-                            string matName = GetNextToken();
-                            Material material = new Material();
-                            material.IsReference = true;
-                            material.Name = matName;
-                            mesh.Materials.Add(material);
+                else if (objectName == "}")
+                    break; // material list finished
+                else if (objectName == "{")
+                {
+                    // template materials 
+                    string matName = GetNextToken();
+                    Material material = new Material();
+                    material.IsReference = true;
+                    material.Name = matName;
+                    mesh.Materials.Add(material);
 
-                            CheckForClosingBrace(); // skip }
-                        }
-                        else
-                            if (objectName == "Material")
-                            {
-                                Material material;
-                                ParseDataObjectMaterial(out material);
-                                mesh.Materials.Add(material);
-                            }
-                            else
-                                if (objectName == ";")
-                                {
-                                    // ignore
-                                }
-                                else
-                                {
-                                    Debug.WriteLine("Unknown data object in material list in x file");
-                                    ParseUnknownDataObject();
-                                }
+                    CheckForClosingBrace(); // skip }
+                }
+                else if (objectName == "Material")
+                {
+                    Material material;
+                    ParseDataObjectMaterial(out material);
+                    mesh.Materials.Add(material);
+                }
+                else if (objectName == ";")
+                {
+                    // ignore
+                }
+                else
+                {
+                    Debug.WriteLine("Unknown data object in material list in x file");
+                    ParseUnknownDataObject();
+                }
             }
         }
 
@@ -608,6 +621,7 @@ namespace SharpXFileParser
             {
                 matName = "material" + lineNumber;
             }
+            material = new Material();
             material.Name = matName;
             material.IsReference = false;
 
@@ -625,30 +639,29 @@ namespace SharpXFileParser
                 string objectName = GetNextToken();
                 if (objectName.Length == 0)
                     ThrowException("Unexpected end of file while parsing mesh material");
+                else if (objectName == "}")
+                {
+                    break; // material finished
+                }
+                else if (objectName == "TextureFilename" || objectName == "TextureFileName")
+                {
+                    // some exporters write "TextureFileName" instead.
+                    string texname = string.Empty;
+                    ParseDataObjectTextureFilename(ref texname);
+                    material.Textures.Add(new TexEntry(texname));
+                }
+                else if (objectName == "NormalmapFilename" || objectName == "NormalmapFileName")
+                {
+                    // one exporter writes out the normal map in a separate filename tag
+                    string texname = string.Empty;
+                    ParseDataObjectTextureFilename(ref texname);
+                    material.Textures.Add(new TexEntry(texname, true));
+                }
                 else
-                    if (objectName == "}")
-                        break; // material finished
-                    else
-                        if (objectName == "TextureFilename" || objectName == "TextureFileName")
-                        {
-                            // some exporters write "TextureFileName" instead.
-                            string texname = string.Empty;
-                            ParseDataObjectTextureFilename(ref texname);
-                            material.Textures.Add(new TexEntry(texname));
-                        }
-                        else
-                            if (objectName == "NormalmapFilename" || objectName == "NormalmapFileName")
-                            {
-                                // one exporter writes out the normal map in a separate filename tag
-                                string texname = string.Empty;
-                                ParseDataObjectTextureFilename(ref texname);
-                                material.Textures.Add(new TexEntry(texname, true));
-                            }
-                            else
-                            {
-                                Debug.WriteLine("Unknown data object in material in x file");
-                                ParseUnknownDataObject();
-                            }
+                {
+                    Debug.WriteLine("Unknown data object in material in x file");
+                    ParseUnknownDataObject();
+                }
             }
         }
 
@@ -678,7 +691,7 @@ namespace SharpXFileParser
                 }
                 else if (objectName == "}")
                 {
-                    break;
+                    break; // animation set finished
                 }
                 else if (objectName == "Animation")
                 {
@@ -702,10 +715,12 @@ namespace SharpXFileParser
             while (running)
             {
                 string objectName = GetNextToken();
-
-                if (objectName == "}")
+                if (objectName.Length == 0)
                 {
-                    break;
+                    ThrowException("Unexpected end of file while parsing animation.");
+                }else if (objectName == "}")
+                {
+                    break; // animation finished
                 }
                 else if (objectName == "AnimationKey")
                 {
@@ -713,7 +728,7 @@ namespace SharpXFileParser
                 }
                 else if (objectName == "AnimationOptions")
                 {
-                    ParseUnknownDataObject();
+                    ParseUnknownDataObject(); // not interested
                 }
                 else if (objectName == "{")
                 {
@@ -760,8 +775,8 @@ namespace SharpXFileParser
                         }
                     case 1: // scale vector
                     case 2: // position vector
-                        // read count
                         {
+                            // read count
                             if (ReadInt() != 3)
                             {
                                 ThrowException("Invalid number of arguments for vector key in animation");
@@ -812,7 +827,7 @@ namespace SharpXFileParser
         protected void ParseDataObjectTextureFilename(ref string name)
         {
             ReadHeadOfDataObject();
-            GetNextTokenAsString(ref name);
+            GetNextTokenAsString(out name);
             CheckForClosingBrace();
 
             // FIX: some files (e.g. AnimationTest.x) have "" as texture file name
@@ -854,9 +869,8 @@ namespace SharpXFileParser
 
                 if (t == "{")
                     ++counter;
-                else
-                    if (t == "}")
-                        --counter;
+                else if (t == "}")
+                    --counter;
             }
         }
 
@@ -1092,7 +1106,7 @@ namespace SharpXFileParser
         /// <summary>
         ///  reads a x file style string
         /// </summary>
-        protected void GetNextTokenAsString(ref string poString)
+        protected void GetNextTokenAsString(out string poString)
         {
             if (isBinaryFormat)
             {
@@ -1235,6 +1249,8 @@ namespace SharpXFileParser
                     if (end - p >= 8)
                     {
                         float result = (float)BitConverter.ToDouble(buffer, p);
+                        p += 8;
+                        return result;
                     }
                     else
                     {
@@ -1269,13 +1285,12 @@ namespace SharpXFileParser
                 CheckForSeparator();
                 return 0.0f;
             }
-            else
-                if (Encoding.Default.GetString(buffer, p, 8) == "1.#QNAN0")
-                {
-                    p += 8;
-                    CheckForSeparator();
-                    return 0.0f;
-                }
+            else if (Encoding.Default.GetString(buffer, p, 8) == "1.#QNAN0")
+            {
+                p += 8;
+                CheckForSeparator();
+                return 0.0f;
+            }
 
             float result_ = 0.0f;
 
@@ -1393,9 +1408,6 @@ namespace SharpXFileParser
         protected int p;
 
         protected byte[] buffer;
-
-        protected Stream stream;
-        protected TextReader textReader;
 
         /// <summary>
         /// counter for number arrays in binary format
