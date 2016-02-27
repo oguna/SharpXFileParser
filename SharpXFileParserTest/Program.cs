@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using NUnit.Core;
 using SharpXFileParser;
 
 namespace SharpXFileParserTest

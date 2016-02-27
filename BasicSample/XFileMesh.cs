@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -195,20 +196,9 @@ namespace BasicSample
                         string comPath = Path.Combine(dirpath, mesh.Materials[i].Textures[0].Name);
                         if (File.Exists(comPath))
                         {
-                            try
-                            {
-                                Texture2D tex = Texture2D.FromFile<Texture2D>(device, comPath);
-                                submesh.Texture = tex;
-                                submesh.TextureView = new ShaderResourceView(device, tex);
-                            }
-                            catch (Exception e)
-                            {
-                                if (Path.GetExtension(comPath).ToUpper() == ".TGA")
-                                {
-                                    submesh.Texture = TargeLoader.LoadFromFile(device, comPath);
-                                    submesh.TextureView = new ShaderResourceView(device, submesh.Texture);
-                                }
-                            }
+                            var tex = TextureUtil.LoadFromFile(device, comPath);
+                            submesh.Texture = tex;
+                            submesh.TextureView = new ShaderResourceView(device, tex);
                         }
                     }
                 }
