@@ -196,7 +196,15 @@ namespace BasicSample
                         string comPath = Path.Combine(dirpath, mesh.Materials[i].Textures[0].Name);
                         if (File.Exists(comPath))
                         {
-                            var tex = TextureUtil.LoadFromFile(device, comPath);
+                            Texture2D tex;
+                            if (comPath.EndsWith(".tga"))
+                            {
+                                tex = TextureUtil.LoadFromTGAFile(device, comPath);
+                            }
+                            else
+                            {
+                                tex = TextureUtil.LoadFromWICFile(device, comPath);
+                            }
                             submesh.Texture = tex;
                             submesh.TextureView = new ShaderResourceView(device, tex);
                         }
