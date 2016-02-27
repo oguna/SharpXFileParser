@@ -199,11 +199,11 @@ namespace BasicSample
                             Texture2D tex;
                             if (comPath.EndsWith(".tga"))
                             {
-                                tex = TextureUtil.LoadFromTGAFile(device, comPath);
+                                tex = TextureUtil.LoadFromTgaFile(device, comPath);
                             }
                             else
                             {
-                                tex = TextureUtil.LoadFromWICFile(device, comPath);
+                                tex = TextureUtil.LoadFromWicFile(device, comPath);
                             }
                             submesh.Texture = tex;
                             submesh.TextureView = new ShaderResourceView(device, tex);
