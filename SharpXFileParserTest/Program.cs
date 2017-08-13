@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using NUnit.Core;
 using SharpXFileParser;
 
 namespace SharpXFileParserTest
 {
     [TestFixture]
-    class ExecutionTest
+    public class ExecutionTest
     {
         [TestCase("../../../ゲキド街v3.0/ゲキド街v3.0.x")]
         [TestCase("../../../X/anim_test.x")]
