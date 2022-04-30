@@ -471,16 +471,22 @@ namespace SharpXFileParser
             if (numFaces != mesh.PosFaces.Count)
                 ThrowException("Normal face count does not match vertex face count.");
 
-            for (uint a = 0; a < numFaces; a++)
+            // do not crah when no face definitions are there
+            if (numFaces > 0)
             {
-                uint numIndices = ReadInt();
-                Face face = new Face();
-                face.Indices = new List<uint>();
-                for (uint b = 0; b < numIndices; b++)
-                    face.Indices.Add(ReadInt());
-                mesh.NormalFaces.Add(face);
+                // normal face creation
+                mesh.NormalFaces = new List<Face>((int)numFaces);
+                for (uint a = 0; a < numFaces; a++)
+                {
+                    uint numIndices = ReadInt();
+                    Face face = new Face();
+                    face.Indices = new List<uint>();
+                    for (uint b = 0; b < numIndices; b++)
+                        face.Indices.Add(ReadInt());
+                    mesh.NormalFaces.Add(face);
 
-                TestForSeparator();
+                    TestForSeparator();
+                }
             }
 
             CheckForClosingBrace();
@@ -924,7 +930,16 @@ namespace SharpXFileParser
                         // name token
                         if (end - p < 4) return s;
                         len = ReadBinDWord();
-                        if (end - p < (int)len) return s;
+                        int bounds = end - p;
+                        int iLen = (int)len;
+                        if (iLen < 0)
+                        {
+                            return s;
+                        }
+                        if (bounds < iLen)
+                        {
+                            return s;
+                        }
                         s = Encoding.Default.GetString(buffer, p, (int)len);
                         p += (int)len;
                         return s;

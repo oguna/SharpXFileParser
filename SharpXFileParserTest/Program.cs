@@ -17,10 +17,12 @@ namespace SharpXFileParserTest
         [TestCase("../../../X/BCN_Epileptic.X")]
         [TestCase("../../../X/fromtruespace_bin32.X")]
         [TestCase("../../../X/kwxport_test_cubewithvcolors.X")]
+        //[TestCase("../../../X/OV_GetNextToken")]
         [TestCase("../../../X/test.x")]
         [TestCase("../../../X/test_cube_binary.x")]
         [TestCase("../../../X/test_cube_compressed.x")]
         [TestCase("../../../X/test_cube_text.x")]
+        [TestCase("../../../X/TestFormatDetection")]
         [TestCase("../../../X/Testwuson.x")]
         public void TryParse(string path)
         {
@@ -51,7 +53,18 @@ namespace SharpXFileParserTest
         public static void Main()
         {
             ExecutionTest test = new ExecutionTest();
+            test.TryParse("../../../ゲキド街v3.0/ゲキド街v3.0.x");
+            test.TryParse("../../../X/anim_test.x");
+            test.TryParse("../../../X/BCN_Epileptic.X");
+            test.TryParse("../../../X/fromtruespace_bin32.X");
+            test.TryParse("../../../X/kwxport_test_cubewithvcolors.X");
+            //test.TryParse("../../../X/OV_GetNextToken");
+            test.TryParse("../../../X/test.x");
+            test.TryParse("../../../X/test_cube_binary.x");
             test.TryParse("../../../X/test_cube_compressed.x");
+            test.TryParse("../../../X/test_cube_text.x");
+            test.TryParse("../../../X/TestFormatDetection");
+            test.TryParse("../../../X/Testwuson.x");
         }
     }
 }
